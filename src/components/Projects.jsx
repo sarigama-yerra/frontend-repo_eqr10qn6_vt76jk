@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { ExternalLink } from 'lucide-react'
 
 const sample = [
@@ -22,6 +22,45 @@ const sample = [
   }
 ]
 
+function TiltCard({ children, i }) {
+  const mx = useMotionValue(0)
+  const my = useMotionValue(0)
+  const sx = useSpring(mx, { stiffness: 100, damping: 12 })
+  const sy = useSpring(my, { stiffness: 100, damping: 12 })
+  const rotateX = useTransform(sy, [-120, 120], [10, -10])
+  const rotateY = useTransform(sx, [-120, 120], [-10, 10])
+
+  const onMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = e.clientX - (rect.left + rect.width / 2)
+    const y = e.clientY - (rect.top + rect.height / 2)
+    mx.set(x)
+    my.set(y)
+  }
+
+  const onLeave = () => {
+    mx.set(0)
+    my.set(0)
+  }
+
+  return (
+    <motion.div
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.5, delay: i * 0.05 }}
+      className="group rounded-xl border border-slate-200 bg-white/70 backdrop-blur p-5 hover:shadow-xl transition-all"
+      style={{ perspective: 1000 }}
+    >
+      <motion.div style={{ rotateX, rotateY }} className="will-change-transform">
+        {children}
+      </motion.div>
+    </motion.div>
+  )
+}
+
 export default function Projects() {
   return (
     <section id="projects" className="relative py-20 sm:py-24">
@@ -37,17 +76,7 @@ export default function Projects() {
 
         <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {sample.map((p, i) => (
-            <motion.a
-              key={p.title}
-              href={p.link}
-              target="_blank"
-              rel="noreferrer"
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.5, delay: i * 0.05 }}
-              className="group rounded-xl border border-slate-200 bg-white/70 backdrop-blur p-5 hover:shadow-xl hover:-translate-y-1 transition-all"
-            >
+            <TiltCard key={p.title} i={i}>
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h3 className="text-lg font-semibold text-slate-900 group-hover:underline">{p.title}</h3>
@@ -60,7 +89,7 @@ export default function Projects() {
                   <span key={t} className="text-xs px-2 py-1 rounded bg-slate-100 text-slate-700">{t}</span>
                 ))}
               </div>
-            </motion.a>
+            </TiltCard>
           ))}
         </div>
       </div>

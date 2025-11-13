@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { Code2, Layers, Zap, Rocket } from 'lucide-react'
 
 const skills = [
@@ -7,6 +7,31 @@ const skills = [
   { icon: Zap, title: 'UI/UX', items: ['Design Systems', 'Accessibility', 'Prototyping', 'Animations'] },
   { icon: Rocket, title: 'Other', items: ['3D (Spline)', 'CI/CD', 'Testing', 'Analytics'] },
 ]
+
+function WobbleCard({ children, i }) {
+  const m = useMotionValue(0)
+  const s = useSpring(m, { stiffness: 120, damping: 10, mass: 0.4 })
+  const rotate = useTransform(s, [-150, 150], [-3, 3])
+
+  return (
+    <motion.div
+      onMouseMove={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect()
+        const dx = e.clientX - (rect.left + rect.width / 2)
+        m.set(dx)
+      }}
+      onMouseLeave={() => m.set(0)}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.5, delay: i * 0.05 }}
+      className="rounded-xl border border-slate-200 bg-white/70 backdrop-blur p-6"
+      style={{ rotate }}
+    >
+      {children}
+    </motion.div>
+  )
+}
 
 export default function Skills() {
   return (
@@ -20,14 +45,7 @@ export default function Skills() {
 
         <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {skills.map((s, i) => (
-            <motion.div
-              key={s.title}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.5, delay: i * 0.05 }}
-              className="rounded-xl border border-slate-200 bg-white/70 backdrop-blur p-6"
-            >
+            <WobbleCard key={s.title} i={i}>
               <s.icon className="text-slate-700" />
               <h3 className="mt-3 font-semibold text-slate-900">{s.title}</h3>
               <ul className="mt-2 text-sm text-slate-600 space-y-1">
@@ -35,7 +53,7 @@ export default function Skills() {
                   <li key={it}>• {it}</li>
                 ))}
               </ul>
-            </motion.div>
+            </WobbleCard>
           ))}
         </div>
       </div>

@@ -1,5 +1,27 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
+
+function BouncyButton({ children }) {
+  const m = useMotionValue(0)
+  const s = useSpring(m, { stiffness: 200, damping: 8 })
+  const scale = useTransform(s, [-100, 0, 100], [0.98, 1, 0.98])
+  return (
+    <motion.button
+      type="submit"
+      onMouseMove={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect()
+        const dx = e.clientX - (rect.left + rect.width / 2)
+        m.set(dx)
+      }}
+      onMouseLeave={() => m.set(0)}
+      whileTap={{ scale: 0.96 }}
+      className="inline-flex items-center justify-center rounded-md bg-slate-900 text-white px-5 py-3 text-sm font-medium hover:bg-slate-800"
+      style={{ scale }}
+    >
+      {children}
+    </motion.button>
+  )
+}
 
 export default function Contact() {
   const [status, setStatus] = useState('')
@@ -41,9 +63,7 @@ export default function Contact() {
             <textarea rows="4" required className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-400" />
           </div>
           <div className="flex items-center justify-between gap-4">
-            <button type="submit" className="inline-flex items-center justify-center rounded-md bg-slate-900 text-white px-5 py-3 text-sm font-medium hover:bg-slate-800">
-              Send Message
-            </button>
+            <BouncyButton>Send Message</BouncyButton>
             <p className="text-sm text-slate-600">{status}</p>
           </div>
         </motion.form>

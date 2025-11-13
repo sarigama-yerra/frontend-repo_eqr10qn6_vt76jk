@@ -3,10 +3,12 @@ import Hero from './components/Hero'
 import Projects from './components/Projects'
 import Skills from './components/Skills'
 import Contact from './components/Contact'
+import MouseGlow from './components/MouseGlow'
 
 function App() {
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-50 via-white to-violet-50 text-slate-900">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-50 via-white to-violet-50 text-slate-900 relative">
+      <MouseGlow />
       <Navbar />
       <Hero />
       <Projects />
